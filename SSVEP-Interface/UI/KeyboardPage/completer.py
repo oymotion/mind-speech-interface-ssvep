@@ -10,7 +10,8 @@ from PyQt5 import QtCore
 
 from utils.autocomplete import process_corpus
 import os
-import openai
+
+# import openai
 
 from dotenv import load_dotenv
 

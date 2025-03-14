@@ -53,16 +53,16 @@ NOTE: SSVEP-Data-Collection/configs.py --> This is set to 8 by default. Open thi
 
 Now you should be able to run the data collection tool!
 
-for OYMotion OB5000Max 8EEG channel
-
-```python
-python ./SSVEP-Data-Collection/run_demo.py --board-id=60 --mac-address=C4:64:E3:D8:E4:F1 --timeout=10
-```
-
 for OYMotion OB5000-7H (7EEG+1ECG) channel
 
 ```python
 python ./SSVEP-Data-Collection/run_demo.py --board-id=59 --mac-address=24:71:89:EF:27:8F --timeout=10
+```
+
+for OYMotion OB5000Max 8EEG channel
+
+```python
+python ./SSVEP-Data-Collection/run_demo.py --board-id=60 --mac-address=C4:64:E3:D8:E4:F1 --timeout=10
 ```
 
 ### Offline SSVEP Data Analysis
@@ -122,6 +122,7 @@ If you'd like to see some metrics, pass the `--verbose` flag like so:
 python -m eeg_ai_layer.models.train --data=<YOUR_DATA_PATH> --train --output-path=<YOUR_MODEL_OUTPUT_PATH> --output-name=<YOUR_MODEL_NAME> --model-type=fbcca_knn --shift-length=<SECONDS> --window-length=<SECONDS> --no-zero --verbose 
 ```
 
+For example:
 python -m eeg_ai_layer.models.train --data=./SSVEP-Data-Collection/demo_data/073_2025_435217.csv --train --output-path=./savedmodels --output-name=test1 --model-type=fbcca_knn --shift-length=0.1 --window-length=0.4 --no-zero
 
 ## ONLINE SSVEP BCI
@@ -159,13 +160,13 @@ cd mind-speech-interface-ssvep
 #### for OYMotion OB5000MAX (8EEG) channel
 
 ```python
-python ./SSVEP-Interface/Data_Streamer.py --model-type=fbcca --board-id=60 --mac-address=C4:64:E3:D8:E4:F1 --timeout=10
+python ./SSVEP-Interface/Data_Streamer.py --model-type=fbcca --board-id=59 --mac-address=24:71:89:EF:27:8F --timeout=10
 ```
 
 #### Alternatively1
 
 ```python
-python ./SSVEP-Interface/Data_Streamer.py --model-type=fbcca_knn --board-id=60 --mac-address=C4:64:E3:D8:E4:F1 --timeout=10
+python ./SSVEP-Interface/Data_Streamer.py --model-type=fbcca_knn --board-id=59 --mac-address=24:71:89:EF:27:8F --timeout=10
 ```
 
 #### Alternatively2
