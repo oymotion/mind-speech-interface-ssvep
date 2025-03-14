@@ -19,11 +19,11 @@ from configs import *
 color_code_order = []
 color_freq_order = []
 
+
 def display_procedure(stop, board, args, label, filename):
     START_DELAY_S, NUM_TRIALS, INDICATOR_TIME_VALUE_S, TRIAL_BREAK_TIME, STIM_TIME = demo_configs()
 
-    f = open("demo_data/" + filename +
-             ".txt", 'a')  # modify depending on CWD
+    f = open("./SSVEP-Data-Collection/demo_data/" + filename + ".txt", "a")  # modify depending on CWD
     f.write(f"Session at {datetime.datetime.now()} \n\n")
     start_time = time()
     board.start_stream(450000, args)
@@ -37,8 +37,8 @@ def display_procedure(stop, board, args, label, filename):
     order = list(range(NUM_STIMS))
 
     for trial in range(NUM_TRIALS):  # number of trials (5 times)
-        print("=====Trial "+str(trial+1)+"=====")
-        f.write("\n=====Trial "+str(trial+1)+"=====\n")
+        print("=====Trial " + str(trial + 1) + "=====")
+        f.write("\n=====Trial " + str(trial + 1) + "=====\n")
 
         # each trial will have a different order of stimulus
         random.shuffle(order)
@@ -59,8 +59,7 @@ def display_procedure(stop, board, args, label, filename):
             stimLabel = preStimIndicators[order[stimPeriod]]
 
             # log color and hz to terminal
-            color = str(currentStim.rValue) + "," + \
-                str(currentStim.gValue) + "," + str(currentStim.bValue)
+            color = str(currentStim.rValue) + "," + str(currentStim.gValue) + "," + str(currentStim.bValue)
             colorCode = ""
             if color == "255,255,255":
                 color = "white"
@@ -74,8 +73,7 @@ def display_procedure(stop, board, args, label, filename):
             print(f"{color}\t{currentStim.freqHertz}Hz")
 
             # log code to file
-            f.write(f"{currentStim.id:02} " + colorCode +
-                    f" {currentStim.freqHertz:02}\n")
+            f.write(f"{currentStim.id:02} " + colorCode + f" {currentStim.freqHertz:02}\n")
             color_code_order.append(colorCode)
             color_freq_order.append(currentStim.freqHertz)
 
@@ -108,41 +106,39 @@ def display_procedure(stop, board, args, label, filename):
 
         # trial break
         for x in range(int(TRIAL_BREAK_TIME)):
-            label.setText(
-                labelTxt(f"Time before next trial: ({TRIAL_BREAK_TIME-x})"))
+            label.setText(labelTxt(f"Time before next trial: ({TRIAL_BREAK_TIME-x})"))
             sleep(1)
 
     color_code_order.append(0)
     color_freq_order.append(0)
     data = board.get_board_data().transpose()
 
-    label.setText(
-        labelTxt(f"Trials finished"))
+    label.setText(labelTxt(f"Trials finished"))
     print("all trials finished")
     f.write("Session finished.\n\n")
     f.close()
 
     board.stop_stream()
     if not TESTING:
-        duration = time()-start_time
-        generate_test_report(board, duration, data,
-                             color_code_order, color_freq_order)
+        duration = time() - start_time
+        generate_test_report(board, duration, data, color_code_order, color_freq_order)
 
-    #EEG data formatting for CSV                
-    df = post_process(data, start_time, color_code_order,
-                      color_freq_order, board.board_id)
+    # EEG data formatting for CSV
+    df = post_process(data, start_time, color_code_order, color_freq_order, board.board_id)
     try:
         if TESTING:
-            df.to_csv("demo_data/test.csv", index=False)
+            df.to_csv("./SSVEP-Data-Collection/demo_data/test.csv", index=False)
         else:
-            df.to_csv("demo_data/" + filename + ".csv", index=False)
+            df.to_csv("./SSVEP-Data-Collection/demo_data/" + filename + ".csv", index=False)
     except:
-       print('Post data processing and CSV Export failed')
+        print("Post data processing and CSV Export failed")
     finally:
         Cyton_Board_End(board)
 
+
 def labelTxt(text):
     return f'<h1 style="text-align:center; color: white">{text}</h1>'
+
 
 def post_process(data, start_time, color_code, color_freq, boardId):
     split_indices = np.where(data == 0.666)[0]
@@ -157,15 +153,16 @@ def post_process(data, start_time, color_code, color_freq, boardId):
         unix_timestamp = data[:, 30:31]
         data = np.delete(data, 0, 1)
         data = np.delete(data, range(8, 31), 1)
-    # GTech Unicorn
+    # OB5000MAX
     else:
-        unix_timestamp = data[:, 17:18]
-        data = np.delete(data, range(8, 19), 1)
+        unix_timestamp = data[:, 9:10]
+        data = np.delete(data, range(9, 11), 1)
+        data = np.delete(data, 0, 1)
+
     main_timestamp = []
-    
+
     for i in range(len(unix_timestamp)):
-        main_timestamp.append(
-            datetime.datetime.fromtimestamp(unix_timestamp[i][0]))
+        main_timestamp.append(datetime.datetime.fromtimestamp(unix_timestamp[i][0]))
 
     main_timestamp = np.array(main_timestamp).reshape(-1, 1)
     data = np.concatenate((main_timestamp, data), axis=1)
@@ -175,7 +172,7 @@ def post_process(data, start_time, color_code, color_freq, boardId):
     header = []
     header.append("time")
     for i in range(1, 9):
-        header.append('CH{}'.format(i))
+        header.append("CH{}".format(i))
 
     # Convert data blocks from NumPy arrays to pandas DataFrames
     for i in range(len(data)):
@@ -183,24 +180,25 @@ def post_process(data, start_time, color_code, color_freq, boardId):
 
     # Put color code and frequency columns together with data blocks
     for data_block, code, freq in zip(data, color_code, color_freq):
-        data_block.loc[0, 'Color Code'] = code
-        data_block.loc[0, 'Frequency'] = freq
+        data_block.loc[0, "Color Code"] = code
+        data_block.loc[0, "Frequency"] = freq
 
     # Combine to 1 DataFrame
     for i in range(len(data)):
         data[i] = data[i].to_numpy()
 
-    for i in range(0, len(data)-1):
-        data[i+1] = np.concatenate((data[i], data[i+1]), axis=0)
+    for i in range(0, len(data) - 1):
+        data[i + 1] = np.concatenate((data[i], data[i + 1]), axis=0)
 
     df_data = data[-1]
-    header.append('Color Code')
-    header.append('Frequency')
+    header.append("Color Code")
+    header.append("Frequency")
     df_all = pd.DataFrame(df_data, columns=header)
     return df_all
 
+
 def generate_test_report(board, duration, data, color_code_order, color_freq_order):
-    tf = open("test_report.txt", 'w')
+    tf = open("test_report.txt", "w")
     tf.write("Size of Data List: ")
     tf.write(str(np.shape(data)))
     tf.write("\n")
@@ -230,12 +228,13 @@ def generate_test_report(board, duration, data, color_code_order, color_freq_ord
     tf.write(str(duration))
     tf.write("\n\n")
     tf.write("Expected Samples: ")
-    tf.write(str(board.get_sampling_rate(0)*duration))
+    tf.write(str(board.get_sampling_rate(0) * duration))
     tf.write("\n")
     tf.write("Received Samples: ")
     tf.write(str(np.shape(data)[0]))
     tf.write("\n")
     tf.close()
+
 
 def Cyton_Board_Config(purpose):
 
@@ -243,28 +242,17 @@ def Cyton_Board_Config(purpose):
 
     parser = argparse.ArgumentParser()
     # use docs to check which parameters are required for specific board, e.g. for Cyton - set serial port
-    parser.add_argument('--timeout', type=int,
-                        help='timeout for device discovery or connection', required=False, default=0)
-    parser.add_argument('--ip-port', type=int,
-                        help='ip port', required=False, default=0)
-    parser.add_argument('--ip-protocol', type=int,
-                        help='ip protocol, check IpProtocolType enum', required=False, default=0)
-    parser.add_argument('--ip-address', type=str,
-                        help='ip address', required=False, default='')
-    parser.add_argument('--serial-port', type=str,
-                        help='serial port', required=False, default='')
-    parser.add_argument('--mac-address', type=str,
-                        help='mac address', required=False, default='')
-    parser.add_argument('--other-info', type=str,
-                        help='other info', required=False, default='')
-    parser.add_argument('--streamer-params', type=str,
-                        help='streamer params', required=False, default='')
-    parser.add_argument('--serial-number', type=str,
-                        help='serial number', required=False, default='')
-    parser.add_argument('--board-id', type=int,
-                        help='board id, check docs to get a list of supported boards', required=False)
-    parser.add_argument('--file', type=str, help='file',
-                        required=False, default='')
+    parser.add_argument("--timeout", type=int, help="timeout for device discovery or connection", required=False, default=0)
+    parser.add_argument("--ip-port", type=int, help="ip port", required=False, default=0)
+    parser.add_argument("--ip-protocol", type=int, help="ip protocol, check IpProtocolType enum", required=False, default=0)
+    parser.add_argument("--ip-address", type=str, help="ip address", required=False, default="")
+    parser.add_argument("--serial-port", type=str, help="serial port", required=False, default="")
+    parser.add_argument("--mac-address", type=str, help="mac address", required=False, default="")
+    parser.add_argument("--other-info", type=str, help="other info", required=False, default="")
+    parser.add_argument("--streamer-params", type=str, help="streamer params", required=False, default="")
+    parser.add_argument("--serial-number", type=str, help="serial number", required=False, default="")
+    parser.add_argument("--board-id", type=int, help="board id, check docs to get a list of supported boards", required=False)
+    parser.add_argument("--file", type=str, help="file", required=False, default="")
     args = parser.parse_args()
 
     params = BrainFlowInputParams()
@@ -292,9 +280,11 @@ def Cyton_Board_Config(purpose):
     else:
         return [board, args.streamer_params]
 
+
 def Cyton_Board_End(board):
     board.release_session()
     return
+
 
 class Stimuli(QWidget):
     def __init__(self, numOStims, arrOFreq, arrORad, distance=1.6):
@@ -312,20 +302,18 @@ class Stimuli(QWidget):
         assert numOStims == len(arrOFreq), "frequencies given should match number of stimuli"
         assert numOStims == len(arrORad), "radii given should match number of stimuli"
 
-
         # append stimulis to grid in random order
         random.shuffle(arrOFreq)
 
         # white stims
         for i in range(numOStims):
-            
-            if numOStims == 8 and i < 5:
-                stim.append(Stim.CircleFlash(arrOFreq[i], 255, 255, 255, i+1, arrORad[i], SCALE, SCALE_2))
-            elif numOStims == 8 and i >= 5:
-                stim.append(Stim.CircleFlash(arrOFreq[i], 255, 255, 255, i+1, arrORad[i], SCALEBOTX, SCALEBOTY))
-            else:
-                stim.append(Stim.CircleFlash(arrOFreq[i], 255, 255, 255, i+1, arrORad[i]))
 
+            if numOStims == 8 and i < 5:
+                stim.append(Stim.CircleFlash(arrOFreq[i], 255, 255, 255, i + 1, arrORad[i], SCALE, SCALE_2))
+            elif numOStims == 8 and i >= 5:
+                stim.append(Stim.CircleFlash(arrOFreq[i], 255, 255, 255, i + 1, arrORad[i], SCALEBOTX, SCALEBOTY))
+            else:
+                stim.append(Stim.CircleFlash(arrOFreq[i], 255, 255, 255, i + 1, arrORad[i]))
 
         # create array of indicators
         global preStimIndicators
@@ -340,12 +328,12 @@ class Stimuli(QWidget):
         # this iteration will be performed for 4, 6 stimuli
         if numOStims != 8:
             stimNum = 0
-            for row in range(2): # numOStims / (numOStims//2)
-                for col in range(numOStims//2):
+            for row in range(2):  # numOStims / (numOStims//2)
+                for col in range(numOStims // 2):
                     stim[stimNum].toggleOff()
                     self.gridLayout.addWidget(stim[stimNum], row, col)
                     stimNum += 1
-        else: # 8 stimuli : we want different format
+        else:  # 8 stimuli : we want different format
             for stimNum in range(numOStims):
                 stim[stimNum].toggleOff()
 
@@ -356,9 +344,9 @@ class Stimuli(QWidget):
             self.gridLayout.addWidget(stim[4], 1, 3)
 
             bottomGrid = QHBoxLayout()
-            bottomGrid.addWidget(stim[5], 0.1)
-            bottomGrid.addWidget(stim[6], 0.1)
-            bottomGrid.addWidget(stim[7], 0.1)
+            bottomGrid.addWidget(stim[5])
+            bottomGrid.addWidget(stim[6])
+            bottomGrid.addWidget(stim[7])
             self.gridLayout.addLayout(bottomGrid, 2, 0, 1, 4)
 
         self.gridLayout.setSpacing(distance)
@@ -370,6 +358,6 @@ class Stimuli(QWidget):
         l = min(self.width(), self.height())
         center = self.rect().center()
 
-        rect = QRect(0, 0, int(l*(14/9)), l)  # 5 x 3 ratio
+        rect = QRect(0, 0, int(l * (14 / 9)), l)  # 5 x 3 ratio
         rect.moveCenter(center)
         self.frame.setGeometry(rect)

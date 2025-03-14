@@ -1,7 +1,8 @@
-from PyQt5.QtWidgets import QLabel,QStackedWidget,QLineEdit
+from PyQt5.QtWidgets import QLabel, QStackedWidget, QLineEdit
 from UI.Components.button_container import ButtonContainer
 from server.twitterAPI import tweet
-from _TTS.watolink_TTS import *
+
+# from _TTS.watolink_TTS import *
 
 from playsound import playsound
 
@@ -12,27 +13,29 @@ from UI.status import setOutputMode, getOutputMode
 
 from UI.helperFunctions import disableOtherButtons, changeStacks
 
-TTS = TTS_synthesizer(model_name = "tts_models/en/ljspeech/tacotron2-DDC")
+# TTS = TTS_synthesizer(model_name="tts_models/en/ljspeech/tacotron2-DDC")
+
 
 class EnterButton(ButtonContainer):
-    def __init__(self,parent):
-        super().__init__(labelText="Confirm",freqName="Enter",checkable=False)
+    def __init__(self, parent):
+        super().__init__(labelText="Confirm", freqName="Enter", checkable=False)
         self.setObjectName("Enter Button")
-        self.clicked.connect(lambda: submitAndReturn(self,parent))
+        self.clicked.connect(lambda: submitAndReturn(self, parent))
 
-def submitAndReturn(self,parent):
-    messageBox = parent.findChild(QLabel,"Prompt")
-    mainStack = parent.findChild(QStackedWidget,"Main Widget")
+
+def submitAndReturn(self, parent):
+    messageBox = parent.findChild(QLabel, "Prompt")
+    mainStack = parent.findChild(QStackedWidget, "Main Widget")
     currWidget = mainStack.currentWidget()
     print(currWidget)
-    inputField = parent.findChild(QLineEdit,"Input")
+    inputField = parent.findChild(QLineEdit, "Input")
 
     if currWidget.objectName() == "Output Menu Page":
         navigateFromOutputMode(parent)
         return
-    
+
     elif currWidget.objectName() == "Keyboard YN Menu Page":
-        navigateFromHome(self,parent)
+        navigateFromHome(self, parent)
         return
 
     elif currWidget.objectName() == "Help Page":
@@ -41,11 +44,12 @@ def submitAndReturn(self,parent):
 
     if inputField.text():
         temp = messageBox.text() + f"[{inputField.text()}]"
-        #messageBox.setText(temp)
+        # messageBox.setText(temp)
         if getOutputMode() == "Twitter":
             tweet(inputField.text())
         elif getOutputMode() == "Voice":
-            TTS.synthesize(text = inputField.text())
+            pass
+            # TTS.synthesize(text=inputField.text())
 
         inputField.clear()
 
@@ -55,15 +59,14 @@ def submitAndReturn(self,parent):
             button.setChecked(False)
 
     # Go back to main page
-    changeStacks(parent,getMainWidgetIndex("Keyboard YN Menu Page"))
+    changeStacks(parent, getMainWidgetIndex("Keyboard YN Menu Page"))
     self.label.setText("Confirm")
 
 
-
 def navigateFromOutputMode(parent):
-    
-    labels = ['Use Twitter','Use Voice']
-    mainButtons = [parent.findChild(ButtonContainer,label) for label in labels]
+
+    labels = ["Use Twitter", "Use Voice"]
+    mainButtons = [parent.findChild(ButtonContainer, label) for label in labels]
 
     print("clicked")
 
@@ -77,23 +80,23 @@ def navigateFromOutputMode(parent):
                 setOutputMode("Voice")
 
             button.setChecked(False)
-            changeStacks(parent,getMainWidgetIndex("Keyboard YN Menu Page"))
-        
+            changeStacks(parent, getMainWidgetIndex("Keyboard YN Menu Page"))
 
-def navigateFromHome(self,parent):
-    
-    labels = ['Use Keyboard', 'Use Yes/No']
-    mainButtons = [parent.findChild(ButtonContainer,label) for label in labels]
+
+def navigateFromHome(self, parent):
+
+    labels = ["Use Keyboard", "Use Yes/No"]
+    mainButtons = [parent.findChild(ButtonContainer, label) for label in labels]
 
     for button in mainButtons:
         if button.label.text() == labels[0] and button.isChecked():
             # print("going to Keyboard")
             button.setChecked(False)
-            changeStacks(parent,getMainWidgetIndex("Keyboard Page"))
+            changeStacks(parent, getMainWidgetIndex("Keyboard Page"))
             self.label.setText("Send message")
 
         elif button.label.text() == labels[1] and button.isChecked():
             # print("going to YN")
             button.setChecked(False)
-            changeStacks(parent,getMainWidgetIndex("YN Page"))
+            changeStacks(parent, getMainWidgetIndex("YN Page"))
             self.label.setText("Send message")

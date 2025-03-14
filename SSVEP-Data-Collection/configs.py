@@ -1,8 +1,8 @@
-#configure these params 
+# configure these params
 TESTING = False
 NUM_STIMS = 8
 
-#do not change these
+# do not change these
 HOR = 1900
 VERT = 1061
 
@@ -11,7 +11,7 @@ if NUM_STIMS == 4:
     FREQS = [8.25, 9.75, 12.75, 14.25]
     RADII = [1, 1, 1, 1]
     DIST = 400
-    SCALE = 1 
+    SCALE = 1
 
 elif NUM_STIMS == 6:
     # ---- 6 stims ---- #
@@ -31,6 +31,7 @@ elif NUM_STIMS == 8:
     SCALE = 1
     SCALE_2 = 0.85
 
+
 def demo_configs():
 
     if TESTING:
@@ -40,10 +41,14 @@ def demo_configs():
         TRIAL_BREAK_TIME = 1
         STIM_TIME = 1
     else:
-        START_DELAY_S = 20  # 20 Seconds
-        NUM_TRIALS = 5  # 5 Trials
+        # START_DELAY_S = 20  # 20 Seconds
+        # NUM_TRIALS = 5  # 5 Trials
+        # INDICATOR_TIME_VALUE_S = 5  # 5 Seconds
+        # TRIAL_BREAK_TIME = 90  # 120 second
+        # STIM_TIME = 5 # stim flash time 5 Seconds
+        START_DELAY_S = 2  # 20 Seconds
+        NUM_TRIALS = 1  # 5 Trials
         INDICATOR_TIME_VALUE_S = 5  # 5 Seconds
-        TRIAL_BREAK_TIME = 90  # 120 second
-        STIM_TIME = 5 # stim flash time 5 Seconds
-
+        TRIAL_BREAK_TIME = 1  # 120 second
+        STIM_TIME = 5  # stim flash time 5 Seconds
     return START_DELAY_S, NUM_TRIALS, INDICATOR_TIME_VALUE_S, TRIAL_BREAK_TIME, STIM_TIME

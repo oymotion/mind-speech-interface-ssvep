@@ -6,3 +6,5 @@ venv/**
 .env
 online_data/
 eeg_ai_layer/data/
+/.conda/
+/savedmodels/

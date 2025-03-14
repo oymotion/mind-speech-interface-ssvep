@@ -12,7 +12,7 @@ from PageFrequencies import page_frequencies
 
 path = os.getcwd()
 head, tail = os.path.split(path)
-if tail != 'mind-speech-interface-ssvep':
+if tail != "mind-speech-interface-ssvep":
     path = head
 sys.path.append(path)
 from eeg_ai_layer.models.Model import load_model
@@ -22,25 +22,25 @@ class EEGSocketListener:
     # Socket Object and Params
     lisSocket = None
     pubSocket = None
-    host = ''  # Server hostname or IP
+    host = ""  # Server hostname or IP
     lisPort = None  # Port used by server
     pubPort = None  # Port used to publish to UI
 
     # Data Format Definitions
-    num_channels = None # number of columns in input array 
+    num_channels = None  # number of columns in input array
 
     output_size = None  # number of samples needed to fill output array
-                        #   the shape of the output array will be 
-                        #   (num_channels, sample_rate * window_length)
+    #   the shape of the output array will be
+    #   (num_channels, sample_rate * window_length)
     fullData = None
     # Buffer Info
-    data = None         # data buffer array to be sent to AI
-    samples = None      # number of samples currently in buffer
+    data = None  # data buffer array to be sent to AI
+    samples = None  # number of samples currently in buffer
 
-    UIDict = None       # Dict from UI with onset offset mechanism info
+    UIDict = None  # Dict from UI with onset offset mechanism info
 
     dictionary = None
-    
+
     csvData = None
 
     def __init__(self, args):
@@ -58,7 +58,7 @@ class EEGSocketListener:
         self.samples = 0
         self.model = load_model(args)
 
-        self.dictionary = {'freq': 0.0, 'page': "Output Menu Page"}
+        self.dictionary = {"freq": 0.0, "page": "Output Menu Page"}
         self.csvData = None
 
     def open_socket_conn(self):
@@ -99,26 +99,21 @@ class EEGSocketListener:
                 self.close_socket_conn()
                 return
             self.UIDict = message
-            self.dictionary["page"] = self.UIDict['current page']
+            self.dictionary["page"] = self.UIDict["current page"]
         self.close_socket_conn()
 
     def send_packet(self, sample):
         self.connection.sendall(pickle.dumps(sample))
-        print(f'Sent {sample}')
+        print(f"Sent {sample}")
 
     def listen(self, run_time=None):
         self.connection, self.address = self.pubSocket.accept()
-        print("Connected by: DSP_Client : "+str(round(time() * 1000))+"ms")
+        print("Connected by: DSP_Client : " + str(round(time() * 1000)) + "ms")
         init_time = time()
         time_func = (lambda: time() - init_time < run_time) if run_time else (lambda: True)
 
         # Create and start thread
-        self.UIDict = {
-            'stimuli': 'off',
-            'current page': 'Output Menu Page',
-            'output mode': '',
-            'on_stimulus_timestamp': None
-        }
+        self.UIDict = {"stimuli": "off", "current page": "Output Menu Page", "output mode": "", "on_stimulus_timestamp": None}
         threading.Thread(target=self.receive_packet_UI).start()
         # Initializing it on 1, but it is passed onto the thread, which toggles it every 2 seconds
 
@@ -134,17 +129,16 @@ class EEGSocketListener:
                 on_stim_time = self.UIDict["on_stimulus_timestamp"]
                 off_stim_time = self.UIDict["timestamp"]
                 if self.data is not None:
-                    subset = self.data[np.nonzero((self.data[:, -1] <= off_stim_time) &
-                                                  (self.data[:, -1] >= on_stim_time))]
+                    subset = self.data[np.nonzero((self.data[:, -1] <= off_stim_time) & (self.data[:, -1] >= on_stim_time))]
                     if subset.shape[0] < self.sample_rate * self.window_length:
                         continue
                     diff = int(subset.shape[0] - self.sample_rate * self.window_length)
                     left_diff = diff // 2
                     right_diff = diff - left_diff
-                    subset = subset[left_diff: -right_diff]
+                    subset = subset[left_diff:-right_diff]
                     sample = np.expand_dims(subset[:, :-1], axis=0)
                     prepared = self.model.prepare(sample)
-                    current_page_frequencies = page_frequencies[self.UIDict['current page']]
+                    current_page_frequencies = page_frequencies[self.UIDict["current page"]]
                     print(f"current page freqs: {current_page_frequencies}")
                     results, _ = self.model.predict(prepared, frequencies=current_page_frequencies)
                     frequency = self.model.convert_index_to_frequency(results, frequencies=current_page_frequencies)
@@ -165,7 +159,7 @@ class EEGSocketListener:
             if files:
                 val = 0
                 for file in files:
-                    last_char = file[file.rindex('_') + 1: file.rindex('.')]
+                    last_char = file[file.rindex("_") + 1 : file.rindex(".")]
                     try:
                         num = int(last_char)
                     except:
