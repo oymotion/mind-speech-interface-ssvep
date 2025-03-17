@@ -1,9 +1,10 @@
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QLineEdit
 
-from UI.Components.button_container import ButtonContainer# buttonClickNoise
+from UI.Components.button_container import ButtonContainer  # buttonClickNoise
 
 from gtts import gTTS
-from playsound import playsound
+
+# from playsound import playsound
 
 import os
 
@@ -15,8 +16,7 @@ class YesNoWidget(QWidget):
         self.setObjectName("YN Page")
         self.setLayout(layout)
 
-
-    def createLayout(self,parent):
+    def createLayout(self, parent):
         layout = QHBoxLayout()
         labels = ["Yes", "No"]
         buttons = []
@@ -32,28 +32,31 @@ class YesNoWidget(QWidget):
 
         return layout
 
-def TTS (text):
-    myobj = gTTS(text=text, lang='en', slow=False)
+
+def TTS(text):
+    myobj = gTTS(text=text, lang="en", slow=False)
 
     myobj.save("yesno.mp3")
-    playsound("yesno.mp3")
+    # playsound("yesno.mp3")
 
-def yesNoVoice(parent,buttons, selected, text):
-    disableOtherButtonsYN(parent,buttons,selected)
+
+def yesNoVoice(parent, buttons, selected, text):
+    disableOtherButtonsYN(parent, buttons, selected)
     TTS(text)
 
-# make the yn array of buttons single select + display selection input field
-def disableOtherButtonsYN(parent,buttons, selected):    
-    #buttonClickNoise()
 
-    inputField = parent.findChild(QLineEdit,"Input")
+# make the yn array of buttons single select + display selection input field
+def disableOtherButtonsYN(parent, buttons, selected):
+    # buttonClickNoise()
+
+    inputField = parent.findChild(QLineEdit, "Input")
 
     if selected.isChecked():
-        
+
         inputField.setText(selected.objectName())
 
         for button in buttons:
             if button != selected:
-                button.setChecked(False)    
+                button.setChecked(False)
     else:
         inputField.clear()

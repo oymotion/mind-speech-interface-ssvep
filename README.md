@@ -123,7 +123,10 @@ python -m eeg_ai_layer.models.train --data=<YOUR_DATA_PATH> --train --output-pat
 ```
 
 For example:
-python -m eeg_ai_layer.models.train --data=./SSVEP-Data-Collection/demo_data/073_2025_435217.csv --train --output-path=./savedmodels --output-name=test1 --model-type=fbcca_knn --shift-length=0.1 --window-length=0.4 --no-zero
+
+```python
+python -m eeg_ai_layer.models.train --data=./SSVEP-Data-Collection/demo_data/073_2025_435217.csv --train --output-path=./savedmodels --output-name=test1.model --model-type=fbcca_knn --shift-length=0.5 --window-length=4 --no-zero
+```
 
 ## ONLINE SSVEP BCI
 
@@ -157,7 +160,7 @@ After ensuring GPT-3, Twitter, and TTS features are setup, you will be ready to 
 cd mind-speech-interface-ssvep
 ```
 
-#### for OYMotion OB5000MAX (8EEG) channel
+#### for OYMotion OB5000-7H (7EEG+1ECG) channel
 
 ```python
 python ./SSVEP-Interface/Data_Streamer.py --model-type=fbcca --board-id=59 --mac-address=24:71:89:EF:27:8F --timeout=10
@@ -172,5 +175,5 @@ python ./SSVEP-Interface/Data_Streamer.py --model-type=fbcca_knn --board-id=59 -
 #### Alternatively2
 
 ```python
-python ./SSVEP-Interface/Data_Streamer.py --model-type=fbcca_knn --model-path=eeg-ai-layer/models/savedmodels/modelname.model  --board-id=60 --mac-address=C4:64:E3:D8:E4:F1 --timeout=10
+python ./SSVEP-Interface/Data_Streamer.py --model-type=fbcca_knn --model-path=./savedmodels/test1.model --board-id=59 --mac-address=24:71:89:EF:27:8F --timeout=10
 ```

@@ -4,7 +4,7 @@ from server.twitterAPI import tweet
 
 # from _TTS.watolink_TTS import *
 
-from playsound import playsound
+# from playsound import playsound
 
 
 from UI.UI_DEFS import getMainWidgetIndex
