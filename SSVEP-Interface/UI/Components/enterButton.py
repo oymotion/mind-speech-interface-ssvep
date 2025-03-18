@@ -5,7 +5,7 @@ from server.twitterAPI import tweet
 # from _TTS.watolink_TTS import *
 
 # from playsound import playsound
-
+import pyttsx3
 
 from UI.UI_DEFS import getMainWidgetIndex
 
@@ -20,6 +20,7 @@ class EnterButton(ButtonContainer):
     def __init__(self, parent):
         super().__init__(labelText="Confirm", freqName="Enter", checkable=False)
         self.setObjectName("Enter Button")
+        self.tts = pyttsx3.init()
         self.clicked.connect(lambda: submitAndReturn(self, parent))
 
 
@@ -48,7 +49,7 @@ def submitAndReturn(self, parent):
         if getOutputMode() == "Twitter":
             tweet(inputField.text())
         elif getOutputMode() == "Voice":
-            pass
+            self.tts.say(inputField.text())
             # TTS.synthesize(text=inputField.text())
 
         inputField.clear()

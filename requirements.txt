@@ -1,4 +1,3 @@
-https://github.com/SynchroniSI/brainflow/releases/download/v0.0.1/brainflow-0.0.1-py3-none-any.whl
 numpy==1.23.4
 PyQt5>=5.15.6
 pandas>=1.3.5
@@ -18,4 +17,5 @@ websockets==10.3
 flask
 flask_socketio
 matplotlib
-gtts
+pyttsx3
+https://github.com/SynchroniSI/brainflow/releases/download/v0.0.1/brainflow-0.0.1-py3-none-any.whl
